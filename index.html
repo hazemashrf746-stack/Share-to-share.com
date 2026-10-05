@@ -1,0 +1,858 @@
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Share to Share — تطبيق مشاركة وعرض الصور والفيديوهات والموسيقى بين أجهزة Android والشاشات الذكية بجودة عالية وخصوصية تامة.">
+<title>Share to Share | شارك محتواك... وشاهده على أي شاشة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05070f;
+  --bg-2:#0a1120;
+  --surface:rgba(255,255,255,.045);
+  --surface-2:rgba(255,255,255,.09);
+  --border:rgba(255,255,255,.09);
+  --text:#eaf1fb;
+  --muted:#9db0c9;
+  --accent:#4cc9f0;
+  --accent-2:#4361ee;
+  --grad:linear-gradient(135deg,#4361ee 0%,#4cc9f0 100%);
+  --radius:20px;
+  --shadow:0 20px 60px rgba(0,0,0,.45);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:96px}
+body{
+  font-family:'Tajawal',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.75;
+  overflow-x:hidden;
+  min-height:100vh;
+}
+body::before{
+  content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(900px 500px at 85% -10%, rgba(67,97,238,.22), transparent 60%),
+    radial-gradient(800px 500px at 10% 110%, rgba(76,201,240,.14), transparent 60%),
+    var(--bg);
+}
+body::after{
+  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);
+  background-size:64px 64px;
+  -webkit-mask-image:radial-gradient(ellipse at 50% 0%,#000 20%,transparent 75%);
+  mask-image:radial-gradient(ellipse at 50% 0%,#000 20%,transparent 75%);
+}
+::selection{background:rgba(76,201,240,.35);color:#fff}
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:linear-gradient(#4361ee,#4cc9f0);border-radius:8px}
+h1,h2,h3,h4,.cairo{font-family:'Cairo',sans-serif}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+svg{display:block}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+section{padding:100px 0;position:relative}
+
+/* ---------- Navbar ---------- */
+.navbar{position:fixed;top:0;inset-inline:0;z-index:100;transition:.35s;background:rgba(5,8,15,.45);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid transparent}
+.navbar.scrolled{background:rgba(5,9,18,.88);border-bottom-color:var(--border);box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.nav-inner{max-width:1200px;margin:auto;display:flex;align-items:center;gap:20px;padding:14px 24px}
+.brand{display:flex;align-items:center;gap:12px;margin-inline-end:auto}
+.brand-tile{width:46px;height:46px;border-radius:13px;background:linear-gradient(145deg,#f6fafd,#d9e5f0);display:grid;place-items:center;box-shadow:0 6px 20px rgba(67,97,238,.35), inset 0 1px 0 #fff;flex:none}
+.brand-tile img{width:36px;height:36px;object-fit:contain}
+.brand-name{font-family:'Cairo';font-weight:800;font-size:19px;letter-spacing:.2px;line-height:1.2}
+.brand-name small{display:block;font-family:'Tajawal';font-weight:500;font-size:11px;color:var(--muted);letter-spacing:0}
+.nav-menu{display:flex;align-items:center;gap:4px}
+.nav-link{color:var(--muted);font-weight:500;font-size:15px;padding:9px 14px;border-radius:11px;transition:.25s;position:relative}
+.nav-link:hover{color:#fff;background:var(--surface)}
+.nav-link.active{color:#fff;background:var(--surface-2)}
+.nav-link.active::after{content:'';position:absolute;bottom:4px;inset-inline:14px;height:2px;border-radius:2px;background:var(--grad)}
+.nav-cta{flex:none}
+.nav-toggle{display:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--border);background:var(--surface);place-items:center}
+.nav-toggle span{display:block;width:20px;height:2px;background:#fff;border-radius:2px;margin:2.5px auto;transition:.3s}
+.nav-toggle.open span:nth-child(1){transform:translateY(4.5px) rotate(45deg)}
+.nav-toggle.open span:nth-child(2){opacity:0}
+.nav-toggle.open span:nth-child(3){transform:translateY(-4.5px) rotate(-45deg)}
+@media(max-width:960px){
+  .nav-menu{position:fixed;top:78px;inset-inline:16px;flex-direction:column;align-items:stretch;background:rgba(8,13,24,.94);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);border:1px solid var(--border);border-radius:20px;padding:12px;gap:6px;opacity:0;transform:translateY(-14px);pointer-events:none;transition:.3s;box-shadow:var(--shadow)}
+  .nav-menu.open{opacity:1;transform:none;pointer-events:auto}
+  .nav-link{padding:13px 16px;text-align:center}
+  .nav-toggle{display:grid}
+  .nav-cta{display:none}
+}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:15px 28px;border-radius:14px;font-weight:700;font-size:16px;border:1px solid transparent;transition:.28s;min-height:50px}
+.btn svg{width:20px;height:20px;flex:none}
+.btn-primary{background:var(--grad);color:#fff;box-shadow:0 12px 32px rgba(67,97,238,.4)}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 18px 44px rgba(76,201,240,.45)}
+.btn-primary:active{transform:translateY(-1px)}
+.btn-ghost{background:var(--surface);border-color:var(--border);color:var(--text);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.btn-ghost:hover{background:var(--surface-2);border-color:rgba(76,201,240,.4);transform:translateY(-3px)}
+.btn-sm{padding:10px 20px;font-size:14px;min-height:42px;border-radius:12px}
+
+/* ---------- Hero ---------- */
+.hero{padding:170px 0 90px;min-height:100vh;display:flex;align-items:center}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;width:100%}
+.badge{display:inline-flex;align-items:center;gap:9px;padding:8px 18px;border-radius:999px;background:var(--surface);border:1px solid var(--border);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font-size:13.5px;font-weight:500;color:var(--muted);margin-bottom:24px}
+.badge i{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 rgba(76,201,240,.6);animation:pulseDot 2s infinite}
+@keyframes pulseDot{0%{box-shadow:0 0 0 0 rgba(76,201,240,.55)}70%{box-shadow:0 0 0 10px rgba(76,201,240,0)}100%{box-shadow:0 0 0 0 rgba(76,201,240,0)}}
+.hero h1{font-size:clamp(34px,5.4vw,60px);font-weight:900;line-height:1.28;margin-bottom:20px}
+.grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lead{color:var(--muted);font-size:clamp(16px,1.6vw,18.5px);max-width:540px;margin-bottom:34px}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:46px}
+.stats{display:flex;gap:38px;flex-wrap:wrap}
+.stat b{display:block;font-family:'Cairo';font-weight:900;font-size:30px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1.3}
+.stat span{color:var(--muted);font-size:13.5px}
+.hero-visual{position:relative;display:grid;place-items:center;min-height:420px}
+.app-icon{width:min(300px,64vw);aspect-ratio:1;border-radius:27%;background:linear-gradient(160deg,#f8fbfe 0%,#dfe9f3 100%);display:grid;place-items:center;position:relative;box-shadow:0 40px 100px rgba(67,97,238,.4), 0 0 0 1px rgba(255,255,255,.25) inset, 0 0 120px rgba(76,201,240,.25);animation:float 6s ease-in-out infinite}
+.app-icon img{width:76%;height:76%;object-fit:contain}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
+.ring{position:absolute;border:1.5px dashed rgba(255,255,255,.14);border-radius:50%;pointer-events:none}
+.ring.r1{width:118%;height:118%;animation:spin 34s linear infinite}
+.ring.r2{width:142%;height:142%;animation:spin 52s linear infinite reverse;border-color:rgba(76,201,240,.14)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.float-chip{position:absolute;display:flex;align-items:center;gap:8px;padding:11px 18px;border-radius:14px;background:rgba(13,21,38,.72);border:1px solid var(--border);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);font-size:14px;font-weight:700;box-shadow:var(--shadow);animation:float 5s ease-in-out infinite;white-space:nowrap}
+.float-chip svg{width:18px;height:18px;color:var(--accent)}
+.fc1{top:6%;inset-inline-start:2%;animation-delay:.4s}
+.fc2{bottom:14%;inset-inline-start:-4%;animation-delay:1.2s}
+.fc3{top:16%;inset-inline-end:-2%;animation-delay:2s}
+.fc3 svg{color:#8b7bff}
+.fc2 svg{color:#ff7bac}
+@media(max-width:960px){.hero{padding-top:140px;min-height:auto}.hero-grid{grid-template-columns:1fr;gap:64px}.hero-visual{order:-1;min-height:340px}}
+
+/* ---------- Section head ---------- */
+.sec-head{text-align:center;max-width:760px;margin:0 auto 60px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 18px;border-radius:999px;background:var(--surface);border:1px solid var(--border);color:var(--accent);font-size:13px;font-weight:700;margin-bottom:18px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.sec-head h2{font-size:clamp(28px,4vw,42px);font-weight:900;line-height:1.4;margin-bottom:14px}
+.sec-head p{color:var(--muted);font-size:16.5px}
+
+/* ---------- Cards / grids ---------- */
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+@media(max-width:980px){.grid-3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.grid-3,.grid-2{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:30px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);position:relative;overflow:hidden;transition:.35s}
+.card::before{content:'';position:absolute;top:-60%;inset-inline-start:-30%;width:70%;height:120%;background:radial-gradient(closest-side,rgba(76,201,240,.14),transparent);opacity:0;transition:.4s;pointer-events:none}
+.card:hover{transform:translateY(-7px);border-color:rgba(76,201,240,.35);box-shadow:0 24px 60px rgba(0,0,0,.4)}
+.card:hover::before{opacity:1}
+.icon-tile{width:56px;height:56px;border-radius:15px;background:var(--grad);display:grid;place-items:center;margin-bottom:20px;box-shadow:0 10px 26px rgba(67,97,238,.4)}
+.icon-tile svg{width:26px;height:26px;color:#fff}
+.icon-tile.outline{background:rgba(76,201,240,.1);border:1px solid rgba(76,201,240,.3);box-shadow:none}
+.icon-tile.outline svg{color:var(--accent)}
+.card h3{font-size:19px;font-weight:800;margin-bottom:10px}
+.card p{color:var(--muted);font-size:14.5px}
+.tag{display:inline-block;margin-top:16px;padding:5px 14px;border-radius:999px;background:rgba(76,201,240,.12);border:1px solid rgba(76,201,240,.25);color:var(--accent);font-size:12.5px;font-weight:700}
+
+/* ---------- About ---------- */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+@media(max-width:960px){.about-grid{grid-template-columns:1fr;gap:44px}}
+.about-text h2{font-size:clamp(26px,3.4vw,38px);font-weight:900;line-height:1.4;margin-bottom:18px}
+.about-text>p{color:var(--muted);margin-bottom:26px;font-size:16.5px}
+.check-list{list-style:none;display:grid;gap:14px}
+.check-list li{display:flex;gap:12px;align-items:flex-start;font-size:15.5px}
+.check-list svg{width:22px;height:22px;flex:none;color:var(--accent);margin-top:3px}
+.media-stack{display:grid;gap:18px}
+.media-tile{display:flex;align-items:center;gap:18px;padding:20px 22px}
+.media-tile .icon-tile{margin-bottom:0;flex:none;width:50px;height:50px}
+.media-tile .icon-tile svg{width:24px;height:24px}
+.mt-body{flex:1;min-width:0}
+.mt-body b{display:block;font-size:16px;margin-bottom:4px}
+.mt-body span{color:var(--muted);font-size:13px}
+.photo-mini{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:96px;flex:none}
+.photo-mini i{aspect-ratio:1;border-radius:6px;background:linear-gradient(135deg,#4361ee,#4cc9f0);opacity:.85}
+.photo-mini i:nth-child(2){background:linear-gradient(135deg,#7b5cff,#4cc9f0)}
+.photo-mini i:nth-child(3){background:linear-gradient(135deg,#0e7490,#4361ee)}
+.photo-mini i:nth-child(4){background:linear-gradient(135deg,#4cc9f0,#a5f3fc)}
+.vid-mini{position:relative;width:96px;aspect-ratio:16/10;border-radius:10px;background:linear-gradient(135deg,#12203a,#123a5e);flex:none;display:grid;place-items:center;overflow:hidden;border:1px solid var(--border)}
+.vid-mini svg{width:26px;height:26px;color:#fff;opacity:.9}
+.vid-mini em{position:absolute;bottom:5px;inset-inline-end:6px;font-style:normal;font-size:10px;background:rgba(0,0,0,.6);padding:1px 6px;border-radius:5px}
+.waveform{display:flex;align-items:center;gap:3px;height:40px;width:96px;flex:none}
+.waveform span{width:4px;border-radius:3px;background:var(--grad);height:var(--h);animation:pulseBar 1.1s ease-in-out infinite alternate;animation-delay:var(--dl);transform-origin:center}
+@keyframes pulseBar{from{transform:scaleY(.35)}to{transform:scaleY(1)}}
+
+/* ---------- Big screen stage ---------- */
+.stage-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:center}
+@media(max-width:960px){.stage-grid{grid-template-columns:1fr;gap:56px}}
+.stage{position:relative;padding:30px 0 60px}
+.tv{width:min(560px,100%);margin:0 auto;aspect-ratio:16/10;background:#0b1120;border:1px solid var(--border);border-radius:20px;padding:14px;box-shadow:0 40px 90px rgba(0,0,0,.55), 0 0 60px rgba(67,97,238,.15);position:relative}
+.tv::after{content:'';position:absolute;bottom:-26px;left:50%;transform:translateX(-50%);width:34%;height:26px;background:linear-gradient(#141c2e,#0b1120);clip-path:polygon(12% 0,88% 0,100% 100%,0 100%);border-radius:0 0 8px 8px}
+.tv-screen{width:100%;height:100%;border-radius:10px;background:linear-gradient(135deg,#101c33 0%,#0b2b46 45%,#123a5e 100%);position:relative;overflow:hidden}
+.tv-screen::after{content:'';position:absolute;top:-60%;left:-30%;width:50%;height:220%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);transform:rotate(18deg);animation:shine 5.5s ease-in-out infinite}
+@keyframes shine{0%{left:-40%}55%,100%{left:120%}}
+.tv-watermark{position:absolute;inset:0;display:grid;place-items:center;opacity:.16}
+.tv-watermark svg{width:34%;height:auto;color:#9fd8ff}
+.now-playing{position:absolute;bottom:12px;inset-inline:12px;display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;background:rgba(5,10,20,.66);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12)}
+.np-thumb{width:38px;height:38px;border-radius:9px;background:var(--grad);flex:none;display:grid;place-items:center}
+.np-thumb svg{width:16px;height:16px;color:#fff}
+.np-body{flex:1;min-width:0}
+.np-body b{display:block;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.np-bar{height:4px;border-radius:3px;background:rgba(255,255,255,.18);margin-top:6px;overflow:hidden}
+.np-bar i{display:block;height:100%;width:40%;border-radius:3px;background:var(--grad);animation:barMove 7s ease-in-out infinite alternate}
+@keyframes barMove{from{width:18%}to{width:82%}}
+.np-time{font-size:11px;color:var(--muted);direction:ltr;flex:none}
+.phone{position:absolute;bottom:6px;left:2%;width:118px;aspect-ratio:9/18.5;background:#0b1120;border:1px solid var(--border);border-radius:22px;padding:8px;box-shadow:0 26px 60px rgba(0,0,0,.6);z-index:2}
+.phone::before{content:'';position:absolute;top:10px;left:50%;transform:translateX(-50%);width:34%;height:5px;border-radius:4px;background:#1a2438}
+.phone-screen{width:100%;height:100%;border-radius:15px;background:linear-gradient(180deg,#101a30,#0a1226);padding:22px 8px 10px;display:flex;flex-direction:column;gap:7px}
+.ps-head{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.ps-head i{width:16px;height:16px;border-radius:5px;background:linear-gradient(145deg,#f6fafd,#d9e5f0);flex:none}
+.ps-head b{font-size:8.5px;color:var(--muted)}
+.ps-row{display:flex;align-items:center;gap:6px;padding:6px;border-radius:8px;background:rgba(255,255,255,.05)}
+.ps-row i{width:12px;height:12px;border-radius:4px;flex:none}
+.ps-row:nth-child(2) i{background:linear-gradient(135deg,#4361ee,#4cc9f0)}
+.ps-row:nth-child(3) i{background:linear-gradient(135deg,#ff7bac,#7b5cff)}
+.ps-row:nth-child(4) i{background:linear-gradient(135deg,#22d3ee,#34d399)}
+.ps-row u{flex:1;height:4px;border-radius:3px;background:rgba(255,255,255,.16);text-decoration:none}
+.ps-btn{margin-top:auto;height:24px;border-radius:8px;background:var(--grad);display:grid;place-items:center}
+.ps-btn svg{width:12px;height:12px;color:#fff}
+.link-waves{position:absolute;left:16%;bottom:44%;width:64px;height:64px;z-index:1;transform:rotate(-14deg)}
+.link-waves path{stroke:var(--accent);stroke-width:3;fill:none;stroke-linecap:round;opacity:0;animation:wavePulse 2.2s ease-out infinite}
+.link-waves path:nth-child(2){animation-delay:.35s}
+.link-waves path:nth-child(3){animation-delay:.7s}
+@keyframes wavePulse{0%{opacity:0}30%{opacity:.9}100%{opacity:0}}
+.stage-chip{position:absolute;padding:9px 16px;border-radius:12px;background:rgba(13,21,38,.75);border:1px solid var(--border);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);font-size:13px;font-weight:700;box-shadow:var(--shadow);animation:float 5.5s ease-in-out infinite}
+.sc1{top:0;right:6%}
+.sc2{top:34%;right:-1%;animation-delay:1.4s;color:var(--accent)}
+.sc3{top:6%;left:8%;animation-delay:.7s}
+.stage-text h2{font-size:clamp(26px,3.4vw,38px);font-weight:900;line-height:1.4;margin-bottom:18px}
+.stage-text>p{color:var(--muted);margin-bottom:26px;font-size:16.5px}
+.spec-chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
+.spec-chips span{padding:9px 18px;border-radius:12px;background:var(--surface);border:1px solid var(--border);font-size:13.5px;font-weight:700;color:var(--text);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+
+/* ---------- Steps ---------- */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;position:relative}
+.steps::before{content:'';position:absolute;top:33px;inset-inline:8%;height:2px;background:repeating-linear-gradient(90deg,rgba(76,201,240,.4) 0 10px,transparent 10px 20px);z-index:0}
+@media(max-width:960px){.steps{grid-template-columns:repeat(2,1fr)}.steps::before{display:none}}
+@media(max-width:560px){.steps{grid-template-columns:1fr}}
+.step{text-align:center;position:relative;z-index:1;padding:0 6px}
+.step-num{width:66px;height:66px;border-radius:50%;background:var(--grad);display:grid;place-items:center;font-family:'Cairo';font-weight:900;font-size:26px;color:#fff;margin:0 auto 20px;box-shadow:0 0 0 9px rgba(67,97,238,.14), 0 12px 30px rgba(67,97,238,.4);position:relative}
+.step-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px 20px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);transition:.3s;height:100%}
+.step:hover .step-card{transform:translateY(-6px);border-color:rgba(76,201,240,.35)}
+.step-card h3{font-size:17.5px;margin-bottom:8px}
+.step-card p{color:var(--muted);font-size:14px}
+
+/* ---------- Player ---------- */
+.player{max-width:960px;margin:0 auto;border-radius:24px;overflow:hidden;border:1px solid var(--border);background:#000;box-shadow:0 40px 100px rgba(0,0,0,.6);position:relative;outline:none}
+.player:focus-visible{box-shadow:0 0 0 3px rgba(76,201,240,.5)}
+.player video{width:100%;aspect-ratio:16/9;display:block;background:#000;object-fit:cover}
+.play-overlay{position:absolute;inset:0;display:grid;place-items:center;background:rgba(4,8,16,.5);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);transition:.35s;z-index:3}
+.play-overlay.hide{opacity:0;pointer-events:none}
+.play-big{width:92px;height:92px;border-radius:50%;background:var(--grad);display:grid;place-items:center;box-shadow:0 0 0 12px rgba(67,97,238,.2), 0 20px 50px rgba(67,97,238,.5);transition:.3s}
+.play-big:hover{transform:scale(1.08)}
+.play-big svg{width:36px;height:36px;color:#fff;margin-inline-start:5px}
+.controls{position:absolute;bottom:0;inset-inline:0;display:flex;align-items:center;gap:12px;padding:16px 16px 14px;background:linear-gradient(transparent,rgba(0,0,0,.88));direction:ltr;transition:.35s;z-index:4}
+.player.idle .controls{opacity:0;transform:translateY(8px);pointer-events:none}
+.ctl-btn{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;color:#fff;transition:.25s;flex:none}
+.ctl-btn:hover{background:rgba(255,255,255,.14)}
+.ctl-btn svg{width:20px;height:20px}
+.time{font-size:12.5px;color:#dbe7f5;font-variant-numeric:tabular-nums;flex:none;direction:ltr}
+input[type=range]{-webkit-appearance:none;appearance:none;height:6px;border-radius:4px;background:rgba(255,255,255,.22);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 0 0 5px rgba(76,201,240,.35);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border:none;border-radius:50%;background:#fff;box-shadow:0 0 0 5px rgba(76,201,240,.35);cursor:pointer}
+input[type=range]::-moz-range-progress{background:var(--accent);height:6px;border-radius:4px}
+#seek{flex:1;min-width:60px}
+#vol{width:88px;flex:none}
+.speed-btn{min-width:52px;height:42px;border-radius:11px;color:#fff;font-weight:700;font-size:13px;transition:.25s;flex:none}
+.speed-btn:hover{background:rgba(255,255,255,.14)}
+@media(max-width:640px){#vol,.vol-wrap{display:none}.controls{gap:8px;padding:12px 10px 10px}}
+.player-note{text-align:center;color:var(--muted);font-size:14px;margin-top:22px}
+
+/* ---------- CTA ---------- */
+.cta-panel{border-radius:34px;padding:70px 34px;text-align:center;background:linear-gradient(160deg,rgba(67,97,238,.2),rgba(76,201,240,.07)),var(--surface);border:1px solid rgba(76,201,240,.28);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);position:relative;overflow:hidden}
+.cta-panel::before{content:'';position:absolute;top:-120px;left:50%;transform:translateX(-50%);width:420px;height:260px;background:radial-gradient(closest-side,rgba(76,201,240,.28),transparent);pointer-events:none}
+.cta-logo{width:96px;height:96px;border-radius:24px;background:linear-gradient(150deg,#f8fbfe,#dce7f1);display:grid;place-items:center;margin:0 auto 26px;box-shadow:0 20px 50px rgba(67,97,238,.45), inset 0 1px 0 #fff;position:relative}
+.cta-logo img{width:72%;height:72%;object-fit:contain}
+.cta-panel h2{font-size:clamp(26px,3.6vw,40px);font-weight:900;margin-bottom:14px;line-height:1.45}
+.cta-panel p{color:var(--muted);max-width:560px;margin:0 auto 34px;font-size:16.5px}
+.cta-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:34px}
+.cta-chips{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.cta-chips span{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--muted);font-weight:600}
+.cta-chips svg{width:16px;height:16px;color:var(--accent)}
+
+/* ---------- Footer ---------- */
+footer{background:rgba(4,7,13,.85);border-top:1px solid var(--border);padding:70px 0 26px;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1.3fr;gap:44px;margin-bottom:50px}
+@media(max-width:960px){.footer-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.footer-grid{grid-template-columns:1fr}}
+.f-brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.f-brand p{color:var(--muted);font-size:14.5px;max-width:320px;margin-bottom:22px}
+.socials{display:flex;gap:10px}
+.socials a{width:42px;height:42px;border-radius:12px;background:var(--surface);border:1px solid var(--border);display:grid;place-items:center;color:var(--muted);transition:.28s}
+.socials a:hover{color:#fff;background:var(--grad);border-color:transparent;transform:translateY(-4px)}
+.socials svg{width:18px;height:18px}
+.f-col h4{font-size:16px;font-weight:800;margin-bottom:20px}
+.f-col ul{list-style:none;display:grid;gap:12px}
+.f-col a{color:var(--muted);font-size:14.5px;transition:.25s;display:inline-flex;align-items:center;gap:8px}
+.f-col a:hover{color:var(--accent);transform:translateX(-4px)}
+.f-col a svg{width:14px;height:14px;opacity:.6}
+.f-bottom{border-top:1px solid var(--border);padding-top:24px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:13.5px}
+.f-bottom b{color:var(--text)}
+
+/* ---------- Modal ---------- */
+.modal-backdrop{position:fixed;inset:0;background:rgba(3,6,12,.72);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);display:none;place-items:center;z-index:300;padding:20px}
+.modal-backdrop.open{display:grid}
+.modal{width:min(480px,100%);background:linear-gradient(180deg,#0e1628,#0a1120);border:1px solid var(--border);border-radius:26px;padding:30px;position:relative;box-shadow:0 40px 100px rgba(0,0,0,.6);animation:popIn .32s cubic-bezier(.2,1.2,.4,1)}
+@keyframes popIn{from{opacity:0;transform:scale(.92) translateY(14px)}to{opacity:1;transform:none}}
+.modal-close{position:absolute;top:16px;inset-inline-end:16px;width:38px;height:38px;border-radius:11px;background:var(--surface);border:1px solid var(--border);display:grid;place-items:center;color:var(--muted);transition:.25s}
+.modal-close:hover{color:#fff;background:rgba(255,80,80,.2);border-color:rgba(255,80,80,.4)}
+.modal-close svg{width:16px;height:16px}
+.modal-head{display:flex;align-items:center;gap:16px;margin-bottom:24px}
+.modal-head .brand-tile{width:56px;height:56px}
+.modal-head .brand-tile img{width:42px;height:42px}
+.modal-head h3{font-size:20px;font-weight:900}
+.modal-head p{color:var(--muted);font-size:13px}
+.dl-options{display:grid;gap:12px}
+.dl-opt{display:flex;align-items:center;gap:14px;width:100%;padding:15px 18px;border-radius:16px;background:var(--surface);border:1px solid var(--border);text-align:start;transition:.28s;color:var(--text)}
+.dl-opt:hover{background:var(--surface-2);border-color:rgba(76,201,240,.4);transform:translateX(-4px)}
+.dl-opt .icon-tile{width:44px;height:44px;margin:0;border-radius:12px;flex:none}
+.dl-opt .icon-tile svg{width:20px;height:20px}
+.dl-opt b{display:block;font-size:15px}
+.dl-opt span{color:var(--muted);font-size:12.5px}
+.dl-opt .go{margin-inline-start:auto;color:var(--muted)}
+.dl-opt .go svg{width:16px;height:16px;transform:scaleX(-1)}
+.dl-progress{display:grid;gap:14px}
+.dl-file{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;direction:ltr;justify-content:flex-end}
+.dl-file svg{width:18px;height:18px;color:var(--accent)}
+.bar{height:9px;border-radius:6px;background:rgba(255,255,255,.1);overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:6px;background:var(--grad);transition:width .12s linear}
+.dl-status{color:var(--muted);font-size:13.5px;text-align:center}
+.dl-done{display:flex;align-items:center;gap:10px;justify-content:center;padding:14px;border-radius:14px;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.35);color:#7ce7b6;font-size:14.5px;font-weight:700}
+.dl-done svg{width:20px;height:20px;flex:none}
+.modal-note{margin-top:20px;color:var(--muted);font-size:12px;text-align:center}
+[hidden]{display:none !important}
+
+/* ---------- Toasts / toTop ---------- */
+#toasts{position:fixed;bottom:24px;inset-inline-end:24px;z-index:400;display:flex;flex-direction:column;gap:12px;max-width:min(360px,calc(100vw - 48px))}
+.toast{display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:15px;background:rgba(12,19,34,.92);border:1px solid var(--border);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:var(--shadow);font-size:14px;font-weight:600;animation:toastIn .35s cubic-bezier(.2,1.2,.4,1)}
+.toast svg{width:20px;height:20px;flex:none;color:var(--accent)}
+.toast.success svg{color:#34d399}
+.toast.out{opacity:0;transform:translateY(10px);transition:.3s}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px) scale(.95)}to{opacity:1;transform:none}}
+#toTop{position:fixed;bottom:24px;inset-inline-start:24px;width:50px;height:50px;border-radius:15px;background:var(--grad);color:#fff;display:grid;place-items:center;box-shadow:0 14px 34px rgba(67,97,238,.45);z-index:250;opacity:0;transform:translateY(16px);pointer-events:none;transition:.35s}
+#toTop.show{opacity:1;transform:none;pointer-events:auto}
+#toTop:hover{transform:translateY(-4px)}
+#toTop svg{width:20px;height:20px}
+
+/* ---------- Reveal ---------- */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .75s ease,transform .75s ease;transition-delay:var(--d,0s)}
+.reveal.visible{opacity:1;transform:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+</style>
+</head>
+<body>
+
+<!-- ======= NAVBAR ======= -->
+<header class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="#home" class="brand" aria-label="Share to Share — الرئيسية">
+      <span class="brand-tile"><img src="https://www.designarena.ai/u/6c039b53-3ec5-49aa-8331-9d674026a35d" alt="شعار Share to Share"></span>
+      <span class="brand-name">Share to Share<small>شارك محتواك بلا حدود</small></span>
+    </a>
+    <nav class="nav-menu" id="navMenu" aria-label="التنقل الرئيسي">
+      <a class="nav-link active" href="#home">الرئيسية</a>
+      <a class="nav-link" href="#about">عن التطبيق</a>
+      <a class="nav-link" href="#features">المميزات</a>
+      <a class="nav-link" href="#bigscreen">الشاشة الكبيرة</a>
+      <a class="nav-link" href="#devices">الأجهزة المدعومة</a>
+      <a class="nav-link" href="#how">كيف يعمل؟</a>
+      <a class="nav-link" href="#player">العرض التعريفي</a>
+    </nav>
+    <button class="btn btn-primary btn-sm nav-cta" data-open-modal>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg>
+      تحميل التطبيق
+    </button>
+    <button class="nav-toggle" id="navToggle" aria-label="فتح القائمة" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main>
+<!-- ======= HERO ======= -->
+<section class="hero" id="home">
+  <div class="container hero-grid">
+    <div class="hero-text">
+      <span class="badge"><i></i> الإصدار 2.0.4 متاح الآن للتحميل</span>
+      <h1>شارك محتواك...<br><span class="grad-text">وشاهده على أي شاشة</span></h1>
+      <p class="lead">Share to Share تطبيق أندرويد عربي يتيح لك مشاركة وعرض الصور والفيديوهات والموسيقى من هاتفك مباشرة على أجهزة Android الأخرى والشاشات الذكية — بجودة عالية، واتصال محلي آمن، وبدون تعقيد.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" data-open-modal>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg>
+          تحميل التطبيق
+        </button>
+        <a class="btn btn-ghost" href="#features">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.9 5.6L20 10l-6.1 1.4L12 17l-1.9-5.6L4 10l6.1-1.4z"/></svg>
+          اكتشف المميزات
+        </a>
+      </div>
+      <div class="stats">
+        <div class="stat"><b><span class="count" data-count="500">0</span> ألف+</b><span>عملية تحميل</span></div>
+        <div class="stat"><b><span class="count" data-count="4.8" data-decimals="1">0</span> ★</b><span>تقييم المستخدمين</span></div>
+        <div class="stat"><b><span class="count" data-count="35">0</span>+</b><span>صيغة وسائط مدعومة</span></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="app-icon">
+        <span class="ring r1"></span>
+        <span class="ring r2"></span>
+        <img src="https://www.designarena.ai/u/6c039b53-3ec5-49aa-8331-9d674026a35d" alt="أيقونة تطبيق Share to Share">
+      </div>
+      <span class="float-chip fc1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-4.5-4.5L7 20"/></svg> صور</span>
+      <span class="float-chip fc2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="14" height="14" rx="3"/><path d="m22 8-6 4 6 4z"/></svg> فيديو 4K</span>
+      <span class="float-chip fc3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> موسيقى</span>
+    </div>
+  </div>
+</section>
+
+<!-- ======= ABOUT ======= -->
+<section id="about">
+  <div class="container about-grid">
+    <div class="about-text reveal">
+      <span class="eyebrow">تعرّف علينا</span>
+      <h2>ما هو <span class="grad-text">Share to Share</span>؟</h2>
+      <p>Share to Share هو جسر الوسائط بين أجهزتك: تطبيق خفيف وسريع يحوّل هاتفك أو جهازك اللوحي الذي يعمل بنظام Android إلى مركز مشاركة لاسلكي، يتيح لك عرض وتشغيل الصور والفيديوهات والموسيقى المخزّنة على جهازك مباشرة على أي شاشة أو جهاز متوافق قريب منك — دون رفع ملفات إلى السحابة ودون الحاجة إلى إنترنت.</p>
+      <ul class="check-list">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 7"/></svg> اعرض صور وفيديوهات وموسيقى هاتفك مباشرة على أي شاشة متوافقة حولك.</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 7"/></svg> تحكّم كامل بالتشغيل من جهازك: تشغيل، إيقاف، تقديم، ترجيع، ومستوى الصوت.</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 7"/></svg> اتصال محلي سريع عبر Wi-Fi Direct أو الشبكة المنزلية — خصوصية تامة بلا سحابة.</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 7"/></svg> واجهة عربية نظيفة وسهلة تناسب جميع الأعمار، بإعدادات تُضبط مرة واحدة.</li>
+      </ul>
+    </div>
+    <div class="media-stack reveal" style="--d:.15s">
+      <div class="card media-tile">
+        <span class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-4.5-4.5L7 20"/></svg></span>
+        <div class="mt-body"><b>مشاركة الصور</b><span>عرض شرائح تلقائي بجودة أصلية حتى 4K</span></div>
+        <div class="photo-mini"><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="card media-tile">
+        <span class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="14" height="14" rx="3"/><path d="m22 8-6 4 6 4z"/></svg></span>
+        <div class="mt-body"><b>تشغيل الفيديو</b><span>بث سلس بدون تقطيع مع دعم الترجمة</span></div>
+        <div class="vid-mini"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg><em>4K</em></div>
+      </div>
+      <div class="card media-tile">
+        <span class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>
+        <div class="mt-body"><b>بث الموسيقى</b><span>صوت محيطي متزامن مع قوائم التشغيل</span></div>
+        <div class="waveform" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======= FEATURES ======= -->
+<section id="features">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">لماذا Share to Share؟</span>
+      <h2>مميزات صُمّمت لتجعل المشاركة <span class="grad-text">متعة حقيقية</span></h2>
+      <p>كل ما تحتاجه لعرض محتواك على الشاشة الكبيرة، بدون كابلات وبدون تعقيد.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card reveal"><span class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></span><h3>مشاركة فورية</h3><p>اتصال بين الجهازين في ثوانٍ معدودة بضغطة واحدة، بدون خطوات إعداد معقّدة أو حسابات تسجيل.</p></div>
+      <div class="card reveal" style="--d:.08s"><span class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></span><h3>جودة حتى 4K</h3><p>نقل الفيديو بدقة تصل إلى 4K بمعدل 60 إطارًا في الثانية دون أي فقدان ملحوظ في الجودة.</p></div>
+      <div class="card reveal" style="--d:.16s"><span class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a11 11 0 0 1 14 0"/><path d="M8.5 15.5a6 6 0 0 1 7 0"/><circle cx="12" cy="19" r="1.6"/></svg></span><h3>بدون إنترنت</h3><p>يعمل عبر Wi-Fi Direct أو الشبكة المحلية، فلا حاجة لاستهلاك باقتك أو رفع ملفاتك لأي خادم.</p></div>
+      <div class="card reveal"><span class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 5-3.5 8.6-7 10-3.5-1.4-7-5-7-10V6z"/><path d="m9 12 2 2 4-4"/></svg></span><h3>خصوصية وأمان</h3><p>تشفير داخل الشبكة المحلية وملفاتك لا تغادر أجهزتك أبدًا — مشاركتك تبقى بين يديك.</p></div>
+      <div class="card reveal" style="--d:.08s"><span class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5 9-5z"/><path d="m3 13 9 5 9-5"/></svg></span><h3>صيغ متعددة</h3><p>دعم واسع لأشهر الصيغ: JPG وPNG وMP4 وMKV وAVI وMP3 وFLAC وAAC وغيرها الكثير.</p></div>
+      <div class="card reveal" style="--d:.16s"><span class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h9"/><circle cx="17" cy="8" r="2.6"/><path d="M20 16h-9"/><circle cx="7" cy="16" r="2.6"/></svg></span><h3>تحكّم كامل</h3><p>هاتفك هو جهاز التحكم: شغّل، أوقف، قدّم، أرجع، واخفض الصوت على الشاشة من مكانك.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======= BIG SCREEN ======= -->
+<section id="bigscreen">
+  <div class="container stage-grid">
+    <div class="stage reveal">
+      <span class="stage-chip sc1">دقة 4K</span>
+      <span class="stage-chip sc2">تزامن فوري</span>
+      <span class="stage-chip sc3">Wi-Fi Direct</span>
+      <div class="tv">
+        <div class="tv-screen">
+          <div class="tv-watermark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10a8 8 0 0 1 16 0"/><path d="m14 6 6-2-2 6"/><path d="m10 14-6 2 2-6"/></svg></div>
+          <div class="now-playing">
+            <span class="np-thumb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+            <div class="np-body"><b>يعمل الآن: فيلم_العطلة.mp4 — يُعرض من هاتف أحمد</b><div class="np-bar"><i></i></div></div>
+            <span class="np-time">04:32 / 12:10</span>
+          </div>
+        </div>
+      </div>
+      <svg class="link-waves" viewBox="0 0 64 64" aria-hidden="true">
+        <path d="M10 40a24 24 0 0 1 24-24"/>
+        <path d="M14 46a32 32 0 0 1 32-32"/>
+        <path d="M18 52a40 40 0 0 1 40-40"/>
+      </svg>
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="ps-head"><i></i><b>Share to Share</b></div>
+          <div class="ps-row"><i></i><u></u></div>
+          <div class="ps-row"><i></i><u></u></div>
+          <div class="ps-row"><i></i><u></u></div>
+          <div class="ps-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+      </div>
+    </div>
+    <div class="stage-text reveal" style="--d:.12s">
+      <span class="eyebrow">تجربة السينما في بيتك</span>
+      <h2>الشاشة الكبيرة... <span class="grad-text">أجمل دائمًا</span></h2>
+      <p>وصّل هاتف Android بشاشة Smart TV أو Android TV لديك، وحوّل لحظاتك الصغيرة إلى عرض كبير: أفلامك المصوّرة، صور رحلاتك، وقوائم موسيقاك المفضلة — كلها على الشاشة الكبيرة بصوت وصورة متزامنين تمامًا.</p>
+      <ul class="check-list">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 7"/></svg> دعم حتى دقة 4K بمعدل 60 إطارًا في الثانية على الشاشات المتوافقة.</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 7"/></svg> مزامنة صوت وصورة بتأخير أقل من نصف ثانية في الاستخدام الطبيعي.</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 7"/></svg> اتصال لاسلكي عبر Wi-Fi Direct أو الشبكة المنزلية، أو سلكي عبر محولات HDMI.</li>
+      </ul>
+      <div class="spec-chips">
+        <span>تأخير &lt; 0.5 ثانية</span><span>4K@60fps</span><span>صوت محيطي 5.1</span><span>عرض شرائح تلقائي</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======= DEVICES ======= -->
+<section id="devices">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">التوافق</span>
+      <h2>الأجهزة <span class="grad-text">المدعومة</span></h2>
+      <p>يعمل التطبيق على طيف واسع من أجهزة Android والشاشات الذكية — إن كان جهازك يعمل بنظام Android 8.0 فأحدث، فأنت جاهز للانطلاق.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card reveal"><span class="icon-tile outline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18h2"/></svg></span><h3>هواتف Android</h3><p>جميع الهواتف الذكية العاملة بنظام Android 8.0 (Oreo) وما بعده.</p><span class="tag">Android 8.0+</span></div>
+      <div class="card reveal" style="--d:.08s"><span class="icon-tile outline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2.5"/><path d="M11 18h2"/></svg></span><h3>أجهزة Android اللوحية</h3><p>شارك من جهازك اللوحي أو استقبل عليه لعرض مزدوج أثناء العمل.</p><span class="tag">Android 8.0+</span></div>
+      <div class="card reveal" style="--d:.16s"><span class="icon-tile outline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="m7 3 5 4 5-4"/></svg></span><h3>Android TV</h3><p>تطبيق مستقبل مخصص لأجهزة Android TV بواجهة مصمّمة للتحكم عن بعد.</p><span class="tag">Android TV 9+</span></div>
+      <div class="card reveal"><span class="icon-tile outline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"/><path d="M2 12a6 6 0 0 1 6 6"/><path d="M2 16a2 2 0 0 1 2 2"/><circle cx="2.6" cy="18.6" r=".6" fill="currentColor"/></svg></span><h3>شاشات Smart TV</h3><p>عبر تقنية البث المدمجة (Cast) في شاشات Samsung وLG وTCL وغيرها.</p><span class="tag">Cast مدمج</span></div>
+      <div class="card reveal" style="--d:.08s"><span class="icon-tile outline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="10" rx="2"/><circle cx="8" cy="13" r="1.4" fill="currentColor" stroke="none"/><path d="M13 13h5"/></svg></span><h3>أجهزة TV Box</h3><p>جميع صناديق التلفاز العاملة بنظام Android تدعم التطبيق المستقبل بالكامل.</p><span class="tag">كل الموديلات</span></div>
+      <div class="card reveal" style="--d:.16s"><span class="icon-tile outline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="16" height="12" rx="3"/><circle cx="10" cy="12" r="3.4"/><path d="m18 10 4-2v8l-4-2"/></svg></span><h3>أجهزة العرض الذكية</h3><p>اعرض محتواك على البروجيكتور لاسلكيًا في الاجتماعات والعروض المنزلية.</p><span class="tag">عرض لاسلكي</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======= HOW IT WORKS ======= -->
+<section id="how">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">خطوة بخطوة</span>
+      <h2>كيف يعمل؟ <span class="grad-text">أربع خطوات فقط</span></h2>
+      <p>من التحميل إلى العرض على الشاشة الكبيرة في أقل من دقيقة.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><div class="step-num">١</div><div class="step-card"><h3>ثبّت التطبيق</h3><p>حمّل Share to Share على الهاتف والشاشة من زر التحميل بالأسفل.</p></div></div>
+      <div class="step reveal" style="--d:.1s"><div class="step-num">٢</div><div class="step-card"><h3>اتصل</h3><p>افتح التطبيق على الجهازين واتصل عبر Wi-Fi Direct أو نفس الشبكة.</p></div></div>
+      <div class="step reveal" style="--d:.2s"><div class="step-num">٣</div><div class="step-card"><h3>اختر محتواك</h3><p>تصفّح مكتبتك واختر صورة أو فيديو أو مقطعًا موسيقيًا بضغطة واحدة.</p></div></div>
+      <div class="step reveal" style="--d:.3s"><div class="step-num">٤</div><div class="step-card"><h3>استمتع بالعرض</h3><p>شاهد محتواك فورًا على الشاشة الكبيرة مع تحكم كامل من هاتفك.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======= VIDEO PLAYER ======= -->
+<section id="player">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">شاهد بنفسك</span>
+      <h2>مشغل <span class="grad-text">العرض التعريفي</span></h2>
+      <p>فيديو قصير يوضح تجربة المشاركة الحقيقية من الهاتف إلى الشاشة الكبيرة.</p>
+    </div>
+    <div class="player reveal" id="playerBox" tabindex="0" aria-label="مشغل الفيديو التعريفي">
+      <video id="video" preload="metadata" playsinline poster="">
+        <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4" type="video/mp4">
+        متصفحك لا يدعم تشغيل الفيديو.
+      </video>
+      <div class="play-overlay" id="playOverlay">
+        <button class="play-big" id="bigPlay" aria-label="تشغيل الفيديو"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+      </div>
+      <div class="controls" id="controls">
+        <button class="ctl-btn" id="btnPlay" aria-label="تشغيل / إيقاف مؤقت"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+        <span class="time"><span id="tCur">0:00</span> / <span id="tDur">0:00</span></span>
+        <input type="range" id="seek" min="0" max="100" step="0.1" value="0" aria-label="شريط التقدم">
+        <span class="vol-wrap" style="display:flex;align-items:center;gap:6px">
+          <button class="ctl-btn" id="btnMute" aria-label="كتم الصوت"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg></button>
+          <input type="range" id="vol" min="0" max="1" step="0.05" value="1" aria-label="مستوى الصوت">
+        </span>
+        <button class="speed-btn" id="btnSpeed" aria-label="سرعة التشغيل">×1</button>
+        <button class="ctl-btn" id="btnFull" aria-label="ملء الشاشة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
+      </div>
+    </div>
+    <p class="player-note reveal">💡 تلميح: اضغط مرتين على الفيديو للدخول إلى وضع ملء الشاشة، واستخدم المسافة للتشغيل والإيقاف.</p>
+  </div>
+</section>
+
+<!-- ======= CTA ======= -->
+<section id="download">
+  <div class="container">
+    <div class="cta-panel reveal">
+      <div class="cta-logo"><img src="https://www.designarena.ai/u/6c039b53-3ec5-49aa-8331-9d674026a35d" alt="شعار Share to Share"></div>
+      <h2>جاهز لتجعل كل شاشة... <span class="grad-text">شاشتك؟</span></h2>
+      <p>حمّل Share to Share الآن مجانًا، وابدأ بمشاركة صورك وفيديوهاتك وموسيقاك على أي شاشة حولك خلال أقل من دقيقة.</p>
+      <div class="cta-actions">
+        <button class="btn btn-primary" data-open-modal>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg>
+          تحميل التطبيق الآن
+        </button>
+        <button class="btn btn-ghost" id="copyLink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
+          انشر الرابط مع أصدقائك
+        </button>
+      </div>
+      <div class="cta-chips">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 7"/></svg> مجاني بالكامل</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 7"/></svg> بدون علامة مائية</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 7"/></svg> تحديثات دورية</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 7"/></svg> دعم فني بالعربية</span>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ======= FOOTER ======= -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="f-col">
+        <div class="f-brand">
+          <span class="brand-tile"><img src="https://www.designarena.ai/u/6c039b53-3ec5-49aa-8331-9d674026a35d" alt="شعار Share to Share"></span>
+          <span class="brand-name">Share to Share<small>شارك محتواك بلا حدود</small></span>
+        </div>
+        <p>تطبيق عربي لمشاركة الوسائط وعرضها لاسلكيًا بين أجهزة Android والشاشات الذكية — بجودة عالية، وخصوصية تامة، وتجربة استخدام لا تُنسى.</p>
+        <div class="socials">
+          <a href="#" aria-label="منصة X"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 4l16 16"/><path d="M20 4 4 20"/></svg></a>
+          <a href="#" aria-label="انستغرام"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" fill="currentColor"/></svg></a>
+          <a href="#" aria-label="يوتيوب"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="m10 9 5 3-5 3z" fill="currentColor"/></svg></a>
+          <a href="#" aria-label="تيليجرام"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg></a>
+        </div>
+      </div>
+      <div class="f-col">
+        <h4>روابط سريعة</h4>
+        <ul>
+          <li><a href="#home">الرئيسية</a></li>
+          <li><a href="#about">عن التطبيق</a></li>
+          <li><a href="#features">المميزات</a></li>
+          <li><a href="#devices">الأجهزة المدعومة</a></li>
+          <li><a href="#how">كيف يعمل؟</a></li>
+        </ul>
+      </div>
+      <div class="f-col">
+        <h4>الدعم</h4>
+        <ul>
+          <li><a href="#">مركز المساعدة</a></li>
+          <li><a href="#">الأسئلة الشائعة</a></li>
+          <li><a href="#">سياسة الخصوصية</a></li>
+          <li><a href="#">شروط الاستخدام</a></li>
+          <li><a href="#">سجل التحديثات</a></li>
+        </ul>
+      </div>
+      <div class="f-col">
+        <h4>تواصل معنا</h4>
+        <ul>
+          <li><a href="mailto:support@shareshare.app"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m2 7 10 7L22 7"/></svg> support@shareshare.app</a></li>
+          <li><a href="mailto:press@shareshare.app"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m2 7 10 7L22 7"/></svg> press@shareshare.app</a></li>
+          <li><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg> الرياض، المملكة العربية السعودية</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="f-bottom">
+      <span>© <span id="year"></span> <b>Share to Share</b> — جميع الحقوق محفوظة.</span>
+      <span>صُنع بشغف ليقرّب المسافات بين شاشاتك ❤</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ======= DOWNLOAD MODAL ======= -->
+<div class="modal-backdrop" id="dlModal" role="dialog" aria-modal="true" aria-labelledby="dlTitle">
+  <div class="modal">
+    <button class="modal-close" data-close-modal aria-label="إغلاق النافذة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 5l14 14"/><path d="M19 5 5 19"/></svg></button>
+    <div class="modal-head">
+      <span class="brand-tile"><img src="https://www.designarena.ai/u/6c039b53-3ec5-49aa-8331-9d674026a35d" alt=""></span>
+      <div><h3 id="dlTitle">تحميل Share to Share</h3><p>الإصدار 2.0.4 • 48 MB • Android 8.0+</p></div>
+    </div>
+    <div class="dl-options" id="dlOptions">
+      <button class="dl-opt" data-dl="apk">
+        <span class="icon-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg></span>
+        <span><b>تحميل مباشر (APK)</b><span>ملف التثبيت الرسمي — 48 MB</span></span>
+        <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+      </button>
+      <button class="dl-opt" data-dl="play">
+        <span class="icon-tile" style="background:linear-gradient(135deg,#34d399,#4cc9f0)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 3.5 18.5 12 4 20.5z"/></svg></span>
+        <span><b>Google Play</b><span>التثبيت التلقائي والتحديثات من المتجر</span></span>
+        <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+      </button>
+      <button class="dl-opt" data-dl="galaxy">
+        <span class="icon-tile" style="background:linear-gradient(135deg,#7b5cff,#4361ee)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M4.5 9.5h15"/></svg></span>
+        <span><b>Galaxy Store</b><span>لمستخدمي أجهزة سامسونج</span></span>
+        <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+      </button>
+    </div>
+    <div class="dl-progress" id="dlProgress" hidden>
+      <div class="dl-file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg><span id="dlName">ShareToShare-v2.0.4.apk</span></div>
+      <div class="bar"><i id="dlBar"></i></div>
+      <div class="dl-status" id="dlStatus">جارٍ تجهيز الرابط… 0%</div>
+      <div class="dl-done" id="dlDone" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 7"/></svg> تم تجهيز الملف بنجاح — سيبدأ التنزيل تلقائيًا.</div>
+    </div>
+    <p class="modal-note">بتحميلك التطبيق فإنك توافق على شروط الاستخدام وسياسة الخصوصية (روابط تجريبية).</p>
+  </div>
+</div>
+
+<div id="toasts" aria-live="polite"></div>
+<button id="toTop" aria-label="العودة إلى الأعلى"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg></button>
+
+<script>
+(function(){
+  'use strict';
+  var $ = function(s,c){return (c||document).querySelector(s)};
+  var $$ = function(s,c){return Array.prototype.slice.call((c||document).querySelectorAll(s))};
+
+  /* Year */
+  $('#year').textContent = new Date().getFullYear();
+
+  /* Waveform bars */
+  var wf = $('.waveform');
+  if(wf){ for(var i=0;i<22;i++){ var s=document.createElement('span'); s.style.setProperty('--h',(25+Math.random()*75)+'%'); s.style.setProperty('--dl',(Math.random()*1.1)+'s'); wf.appendChild(s);} }
+
+  /* Navbar scroll + toTop + scrollspy */
+  var navbar=$('#navbar'), toTop=$('#toTop');
+  var sections=$$('main section[id]');
+  var navLinks=$$('.nav-link');
+  function onScroll(){
+    var y=window.scrollY||window.pageYOffset;
+    navbar.classList.toggle('scrolled', y>30);
+    toTop.classList.toggle('show', y>600);
+    var pos=y+160, cur=sections.length?sections[0].id:'';
+    sections.forEach(function(sec){ if(sec.offsetTop<=pos) cur=sec.id; });
+    if(window.innerHeight+y>=document.body.scrollHeight-40) cur=sections[sections.length-1].id;
+    navLinks.forEach(function(l){ l.classList.toggle('active', l.getAttribute('href')==='#'+cur); });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+  toTop.addEventListener('click', function(){ window.scrollTo({top:0,behavior:'smooth'}); });
+
+  /* Mobile menu */
+  var toggle=$('#navToggle'), menu=$('#navMenu');
+  toggle.addEventListener('click', function(){
+    var open=menu.classList.toggle('open');
+    toggle.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', open?'true':'false');
+  });
+  $$('#navMenu a').forEach(function(a){ a.addEventListener('click', function(){ menu.classList.remove('open'); toggle.classList.remove('open'); toggle.setAttribute('aria-expanded','false'); }); });
+
+  /* Reveal on scroll */
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target);} });
+  },{threshold:.14});
+  $$('.reveal').forEach(function(el){ io.observe(el); });
+
+  /* Counters */
+  function animateCount(el){
+    var target=parseFloat(el.dataset.count), dec=parseInt(el.dataset.decimals||'0',10);
+    var t0=null, dur=1500;
+    function step(ts){ if(!t0)t0=ts; var p=Math.min((ts-t0)/dur,1); var e=1-Math.pow(1-p,3);
+      el.textContent=(target*e).toFixed(dec); if(p<1)requestAnimationFrame(step); else el.textContent=target.toFixed(dec); }
+    requestAnimationFrame(step);
+  }
+  var cio=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ animateCount(e.target); cio.unobserve(e.target);} }); },{threshold:.6});
+  $$('.count').forEach(function(el){ cio.observe(el); });
+
+  /* Toasts */
+  var toasts=$('#toasts');
+  function toast(msg,type){
+    var t=document.createElement('div'); t.className='toast '+(type||'');
+    var icon = type==='success'
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 7"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01"/><path d="M11 12h1v5h1"/></svg>';
+    t.innerHTML=icon+'<span>'+msg+'</span>';
+    toasts.appendChild(t);
+    setTimeout(function(){ t.classList.add('out'); setTimeout(function(){ t.remove(); },320); },3400);
+  }
+
+  /* Modal */
+  var modal=$('#dlModal'), dlOptions=$('#dlOptions'), dlProgress=$('#dlProgress'),
+      dlBar=$('#dlBar'), dlStatus=$('#dlStatus'), dlDone=$('#dlDone'), dlName=$('#dlName');
+  var dlRAF=null;
+  function openModal(){
+    modal.classList.add('open'); document.body.style.overflow='hidden';
+    if(dlRAF)cancelAnimationFrame(dlRAF);
+    dlOptions.hidden=false; dlProgress.hidden=true; dlDone.hidden=true;
+    dlBar.style.width='0%'; dlStatus.textContent='جارٍ تجهيز الرابط… 0%';
+  }
+  function closeModal(){ modal.classList.remove('open'); document.body.style.overflow=''; if(dlRAF)cancelAnimationFrame(dlRAF); }
+  $$('[data-open-modal]').forEach(function(b){ b.addEventListener('click', openModal); });
+  $$('[data-close-modal]').forEach(function(b){ b.addEventListener('click', closeModal); });
+  modal.addEventListener('click', function(e){ if(e.target===modal) closeModal(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape'&&modal.classList.contains('open')) closeModal(); });
+
+  $$('.dl-opt').forEach(function(opt){
+    opt.addEventListener('click', function(){
+      var kind=opt.dataset.dl;
+      if(kind==='apk'){
+        dlOptions.hidden=true; dlProgress.hidden=false; dlDone.hidden=true;
+        dlName.textContent='ShareToShare-v2.0.4.apk';
+        var t0=null, dur=2400;
+        function step(ts){ if(!t0)t0=ts; var p=Math.min((ts-t0)/dur,1); var e=p<.85? p/0.85*0.9 : 0.9+(p-0.85)/0.15*0.1;
+          var pct=Math.round(e*100); dlBar.style.width=pct+'%'; dlStatus.textContent='جارٍ التنزيل… '+pct+'%';
+          if(p<1){ dlRAF=requestAnimationFrame(step); } else { dlStatus.textContent='اكتمل التنزيل (100%)'; dlDone.hidden=false; toast('تم تجهيز ملف التثبيت بنجاح!','success'); }
+        }
+        dlRAF=requestAnimationFrame(step);
+      } else {
+        toast(kind==='play' ? 'رابط تجريبي — سيتم التوجيه إلى Google Play قريبًا.' : 'رابط تجريبي — سيتم التوجيه إلى Galaxy Store قريبًا.');
+      }
+    });
+  });
+
+  /* Copy link */
+  $('#copyLink').addEventListener('click', function(){
+    var url=window.location.href;
+    function ok(){ toast('تم نسخ رابط الموقع — شاركه مع أصدقائك!','success'); }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(ok).catch(function(){ fallback(); }); }
+    else fallback();
+    function fallback(){ var ta=document.createElement('textarea'); ta.value=url; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy'); ok();}catch(e){ toast('تعذّر النسخ تلقائيًا: '+url); } ta.remove(); }
+  });
+
+  /* ---------- Video player ---------- */
+  var player=$('#playerBox'), video=$('#video'), overlay=$('#playOverlay'),
+      btnPlay=$('#btnPlay'), bigPlay=$('#bigPlay'), seek=$('#seek'),
+      tCur=$('#tCur'), tDur=$('#tDur'), vol=$('#vol'), btnMute=$('#btnMute'),
+      btnSpeed=$('#btnSpeed'), btnFull=$('#btnFull'), controls=$('#controls');
+  var ICON_PLAY='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+  var ICON_PAUSE='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7z"/><path d="M13 5h4v14h-4z"/></svg>';
+  var ICON_VOL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+  var ICON_MUTE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="m16 9 6 6"/><path d="m22 9-6 6"/></svg>';
+  function fmt(t){ if(!isFinite(t))return '0:00'; var m=Math.floor(t/60), s=Math.floor(t%60); return m+':'+(s<10?'0':'')+s; }
+  function paintSeek(){ var p=video.duration? (video.currentTime/video.duration*100):0; seek.value=p; seek.style.background='linear-gradient(90deg, var(--accent) '+p+'%, rgba(255,255,255,.22) '+p+'%)'; }
+  function paintVol(){ var v=video.muted?0:video.volume*100; vol.style.background='linear-gradient(90deg, var(--accent-2) '+v+'%, rgba(255,255,255,.22) '+v+'%)'; }
+  function togglePlay(){ if(video.paused){ video.play(); } else { video.pause(); } }
+  video.addEventListener('play', function(){ btnPlay.innerHTML=ICON_PAUSE; overlay.classList.add('hide'); wake(); });
+  video.addEventListener('pause', function(){ btnPlay.innerHTML=ICON_PLAY; overlay.classList.remove('hide'); player.classList.remove('idle'); });
+  video.addEventListener('ended', function(){ overlay.classList.remove('hide'); player.classList.remove('idle'); });
+  video.addEventListener('loadedmetadata', function(){ tDur.textContent=fmt(video.duration); paintSeek(); });
+  video.addEventListener('timeupdate', function(){ tCur.textContent=fmt(video.currentTime); paintSeek(); });
+  btnPlay.addEventListener('click', togglePlay);
+  bigPlay.addEventListener('click', togglePlay);
+  video.addEventListener('click', togglePlay);
+  video.addEventListener('dblclick', function(){ toggleFull(); });
+  seek.addEventListener('input', function(){ if(video.duration){ video.currentTime=seek.value/100*video.duration; } paintSeek(); });
+  vol.addEventListener('input', function(){ video.volume=parseFloat(vol.value); video.muted=false; paintVol(); setMuteIcon(); });
+  function setMuteIcon(){ btnMute.innerHTML=(video.muted||video.volume===0)?ICON_MUTE:ICON_VOL; }
+  btnMute.addEventListener('click', function(){ video.muted=!video.muted; setMuteIcon(); paintVol(); });
+  var speeds=[1,1.25,1.5,2,0.75], si=0;
+  btnSpeed.addEventListener('click', function(){ si=(si+1)%speeds.length; video.playbackRate=speeds[si]; btnSpeed.textContent='×'+speeds[si]; });
+  function toggleFull(){
+    if(!document.fullscreenElement){ (player.requestFullscreen||player.webkitRequestFullscreen||function(){}).call(player); }
+    else { (document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document); }
+  }
+  btnFull.addEventListener('click', toggleFull);
+  /* controls auto-hide */
+  var idleTimer=null;
+  function wake(){ player.classList.remove('idle'); clearTimeout(idleTimer); if(!video.paused){ idleTimer=setTimeout(function(){ player.classList.add('idle'); },2600); } }
+  ['mousemove','touchstart','click'].forEach(function(ev){ player.addEventListener(ev, wake, {passive:true}); });
+  /* keyboard on player */
+  player.addEventListener('keydown', function(e){
+    if(e.key===' '||e.key==='k'){ e.preventDefault(); togglePlay(); }
+    else if(e.key==='m'){ video.muted=!video.muted; setMuteIcon(); paintVol(); }
+    else if(e.key==='f'){ toggleFull(); }
+    else if(e.key==='ArrowRight'){ video.currentTime=Math.min(video.duration||0, video.currentTime+5); }
+    else if(e.key==='ArrowLeft'){ video.currentTime=Math.max(0, video.currentTime-5); }
+  });
+  paintVol(); setMuteIcon(); paintSeek();
+})();
+</script>
+</body>
+</html>
